@@ -2,15 +2,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{313E2979-44F1-4BBB-AA35-FF3891C938BA}</UniqueIdentifier>
+      <UniqueIdentifier>{B4AB8078-7983-4930-9E86-0EEFCD93AFEB}</UniqueIdentifier>
       <Extensions>cpp;c</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{B2D80568-826D-4EF6-85F1-E60748868E39}</UniqueIdentifier>
+      <UniqueIdentifier>{C29F27DF-163C-4AF2-A1F0-D748485E384D}</UniqueIdentifier>
       <Extensions>h;hpp</Extensions>
     </Filter>
     <Filter Include="Resource Files">
-      <UniqueIdentifier>{4207BBE1-02A2-43FC-AF03-8463E613722F}</UniqueIdentifier>
+      <UniqueIdentifier>{BBD700AB-534D-4F46-B2F3-6D102787AE8A}</UniqueIdentifier>
       <Extensions>hlsl;jpg;jpeg;png;wav;mp3;ico;dds;rc;obj</Extensions>
     </Filter>
   </ItemGroup>
@@ -27,7 +27,7 @@
     <ClCompile Include="..\..\..\src\Render\GCGraphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\Render\GCGraphicsProfiler.cpp">
+    <ClCompile Include="..\..\..\src\Render\GCGraphicsLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Render\GCMaterial.cpp">
@@ -66,7 +66,13 @@
     <ClCompile Include="..\..\..\src\Render\MathHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\Render\pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\Render\Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Render\Vectors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\Render\Window.cpp">
@@ -78,16 +84,13 @@
     <ClInclude Include="..\..\..\src\Render\DDSTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCGeometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\GCGraphicsProfiler.h">
+    <ClInclude Include="..\..\..\src\Render\GCGraphicsLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCMaterial.h">
@@ -108,16 +111,16 @@
     <ClInclude Include="..\..\..\src\Render\GCPrimitiveFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\Render\GCPrimitiveIdEnum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\GCShaderCBStruct.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\GCShaderVertexStruct.h">
+    <ClInclude Include="..\..\..\src\Render\GCShaderConstantBufferStruct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCTexture.h">
@@ -126,13 +129,10 @@
     <ClInclude Include="..\..\..\src\Render\GCTextureFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\Render\GCUploadBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\src\Render\GCUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\HLSLReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\Macros.h">
@@ -141,22 +141,16 @@
     <ClInclude Include="..\..\..\src\Render\MathHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\PrimitiveTypeEnum.h">
+    <ClInclude Include="..\..\..\src\Render\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\ShaderTypeEnum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\Render\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\Render\UploadBuffer.h">
+    <ClInclude Include="..\..\..\src\Render\Vectors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\Render\Window.h">
@@ -165,16 +159,34 @@
     <None Include="..\..\..\src\Render\cottage.obj">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\..\src\Render\cube.obj">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\..\..\src\Render\monkey.obj">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\..\..\src\Render\monkeyUv.obj">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\..\src\Render\normals.obj">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\..\..\src\Render\Shaders\color.hlsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\..\src\Render\Shaders\customTest.hlsl">
+    <None Include="..\..\..\src\Render\Shaders\LightColor.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\src\Render\Shaders\LightTexture.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\src\Render\Shaders\LightTextureBloom.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\src\Render\Shaders\ObjectBufferId.hlsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\..\src\Render\Shaders\PostProcessing.hlsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\..\..\src\Render\Shaders\texture.hlsl">

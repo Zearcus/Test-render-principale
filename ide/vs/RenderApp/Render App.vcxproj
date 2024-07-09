@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{C50869FF-12CD-4B76-BF91-3D63AEEF1D06}</ProjectGuid>
+    <ProjectGuid>{87AF903F-0CC1-40A7-AE43-3F165E81B085}</ProjectGuid>
     <RootNamespace>Render App</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
