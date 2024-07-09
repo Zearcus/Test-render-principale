@@ -1,7 +1,7 @@
-#include "../../../src/Render/framework.h"
+#include "framework.h"
 
 struct GCTest : GCSHADERCB {
-	DirectX::XMFLOAT4X4 world;
+	DirectX::XMFLOAT4X4 world; 
 	DirectX::XMFLOAT4 color;
 };
 
@@ -62,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	material2->SetTexture(texture);
 
 	// PERSPECTIVE 
-
+	
 	//DirectX::XMVECTOR cameraPosition = DirectX::XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
 	//DirectX::XMVECTOR targetPosition = DirectX::XMVectorZero();
 	//DirectX::XMVECTOR upVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -83,15 +83,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 
 //// SET CAMERA
-//	DirectX::XMVECTOR cameraPosition = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 1.0f);  // Position de la camÃ©ra
-//	DirectX::XMVECTOR targetPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f); // Point visÃ© par la camÃ©ra
-//	DirectX::XMVECTOR upVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);       // Vecteur "up" de la camÃ©ra
+//	DirectX::XMVECTOR cameraPosition = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 1.0f);  // Position de la caméra
+//	DirectX::XMVECTOR targetPosition = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f); // Point visé par la caméra
+//	DirectX::XMVECTOR upVector = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);       // Vecteur "up" de la caméra
 //
 //	// Projection orthographique
 //	float viewWidth = 10.0f;    // Largeur de la vue
 //	float viewHeight = 10.0f;   // Hauteur de la vue
 //	float nearZ = 0.1f;         // Plan proche
-//	float farZ = 100.0f;        // Plan Ã©loignÃ©
+//	float farZ = 100.0f;        // Plan éloigné
 //
 //	DirectX::XMMATRIX projectionMatrix = DirectX::XMMatrixOrthographicLH(viewWidth, viewHeight, nearZ, farZ);
 //	DirectX::XMMATRIX viewMatrix = DirectX::XMMatrixLookAtLH(cameraPosition, targetPosition, upVector);
@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 //
 //	// ****************
 
-
+	
 	float left = -1.0f;
 	float right = 1.0f;
 	float bottom = -1.0f;
