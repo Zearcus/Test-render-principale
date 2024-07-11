@@ -211,6 +211,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
     auto geoCubeInner = graphics->CreateGeometryPrimitive(Cube, XMFLOAT4(Colors::Green));
     auto geoSphere = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Yellow));
 
+    //Test creation de geometry
+    auto _geoSphere = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Orange));
+
     std::string shaderFilePath1 = "../../../src/Render/Shaders/LightColor.hlsl";
     std::string csoDestinationPath1 = "../../../src/Render/CsoCompiled/LightColor";
     auto shaderLightColor = graphics->CreateShaderCustom(shaderFilePath1, csoDestinationPath1, flagsLightColor, D3D12_CULL_MODE_BACK);
@@ -229,10 +232,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 
     auto meshPostProcessing = graphics->CreateMeshCustom(geometryPostProcessing.resource, flags);
-    // Cr�ation des meshes
+    // Creation des meshes
     auto meshCubeOuter = graphics->CreateMeshCustom(geoCubeOuter.resource, flagsLightTexture); // on dit au mesh si on veut lui mettre une texture ou une couleur
     auto meshCubeInner = graphics->CreateMeshCustom(geoCubeInner.resource, flagsLightColor);
     auto meshSphere = graphics->CreateMeshCustom(geoSphere.resource, flagsLightTexture);
+
+    //Test creation d'un mesh custom
+    auto _meshSphere = graphics->CreateMeshCustom(_geoSphere.resource, flagsLightColor);
 
     std::string texturePath = "../../../src/Render/Textures/texture.dds";
     std::string texturePath2 = "../../../src/Render/Textures/cottage_diffuse.dds";
@@ -248,6 +254,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
     auto materialSphere = graphics->CreateMaterial(shaderLightTexture.resource);
     materialSphere.resource->SetTexture(texture.resource);
 
+    //Test creation de material
+    auto _materialSphere = graphics->CreateMaterial(shaderLightColor.resource);
+
+
     XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(0.25f * XM_PI, window->AspectRatio(), 1.0f, 1000.0f);
     XMMATRIX viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
     XMMATRIX transposedProjectionMatrix = XMMatrixTranspose(projectionMatrix);
@@ -262,15 +272,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
     XMMATRIX worldMatrixCubeInner2 = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-6.0f, 5.0f, -2.0f); // Cube interne centr�
     XMMATRIX worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(3.0f, 5.0f, -2.0f); // Sph�re d�plac�e dans le cube interne
 
+    XMMATRIX _worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(10.0f, 5.0f, -2.0f);// deplacement de la sphere de test
+
     XMFLOAT4X4 worldCubeOuter;
     XMFLOAT4X4 worldCubeInner;
     XMFLOAT4X4 worldCubeInner2;
     XMFLOAT4X4 worldSphere;
 
+    XMFLOAT4X4 _worldSphere;// t'as compris
+
     XMStoreFloat4x4(&worldCubeOuter, XMMatrixTranspose(worldMatrixCubeOuter));
     XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInner));
     XMStoreFloat4x4(&worldCubeInner2, XMMatrixTranspose(worldMatrixCubeInner2));
     XMStoreFloat4x4(&worldSphere, XMMatrixTranspose(worldMatrixSphere));
+
+    XMStoreFloat4x4(&_worldSphere, XMMatrixTranspose(_worldMatrixSphere));
 
     auto startTime = std::chrono::steady_clock::now();
 
@@ -350,6 +366,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
         graphics->UpdateWorldConstantBuffer(materialSphere.resource, worldCubeInner2, 4.0f);
         graphics->GetRender()->DrawObject(meshSphere.resource, materialSphere.resource);
+
+        //Test de render mon objet
+        graphics->UpdateWorldConstantBuffer(_materialSphere.resource, _worldSphere, 5.0f);
+        graphics->GetRender()->DrawObject(_meshSphere.resource, _materialSphere.resource);
 
         graphics->EndFrame();
         window->Run(graphics->GetRender());
