@@ -205,7 +205,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
     SET_FLAG(flagsLightTexture, HAS_POSITION);
     SET_FLAG(flagsLightTexture, HAS_UV);
     SET_FLAG(flagsLightTexture, HAS_NORMAL);
-
+    //set une couleur pour toutes les formes des objets de base avant de faire un mesh et un material
     auto geometryPostProcessing = graphics->CreateGeometryPrimitive(Quad, DirectX::XMFLOAT4(DirectX::Colors::Yellow));
     auto geoCubeOuter = graphics->CreateGeometryPrimitive(CubeSkybox, XMFLOAT4(Colors::Red));
     auto geoCubeInner = graphics->CreateGeometryPrimitive(Cube, XMFLOAT4(Colors::Green));
@@ -230,7 +230,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
     auto meshPostProcessing = graphics->CreateMeshCustom(geometryPostProcessing.resource, flags);
     // Cr�ation des meshes
-    auto meshCubeOuter = graphics->CreateMeshCustom(geoCubeOuter.resource, flagsLightColor);
+    auto meshCubeOuter = graphics->CreateMeshCustom(geoCubeOuter.resource, flagsLightTexture); // on dit au mesh si on veut lui mettre une texture ou une couleur
     auto meshCubeInner = graphics->CreateMeshCustom(geoCubeInner.resource, flagsLightColor);
     auto meshSphere = graphics->CreateMeshCustom(geoSphere.resource, flagsLightTexture);
 
@@ -241,8 +241,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
     graphics->InitializeGraphicsResourcesEnd();
 
-    auto materialCubeOuter = graphics->CreateMaterial(shaderLightSkyBox.resource);
-    //materialCubeOuter.resource->SetTexture(texture2.resource);
+    auto materialCubeOuter = graphics->CreateMaterial(shaderLightTexture.resource); // creer un material speciale avec le parametre associe dans l'exemple ici c'est une texture
+    materialCubeOuter.resource->SetTexture(texture2.resource); // on set la texture si on veut afficher une texture
 
     auto materialCubeInner = graphics->CreateMaterial(shaderLightColor.resource);
     auto materialSphere = graphics->CreateMaterial(shaderLightTexture.resource);
@@ -290,12 +290,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInnerUpdated));
 
         // Gestion des entr�es utilisateur pour le d�placement de la cam�ra
-        //if (window->IsKeyDown('Z')) {
-        //    cameraPosition += cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
-        //}
-        //if (window->IsKeyDown('S')) {
-        //    cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
-        //}
+        if (window->IsKeyDown('Z')) {
+            cameraPosition += cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
+        }
+        if (window->IsKeyDown('S')) {
+            cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
+        }
 
         viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
         transposedViewMatrix = XMMatrixTranspose(viewMatrix);
