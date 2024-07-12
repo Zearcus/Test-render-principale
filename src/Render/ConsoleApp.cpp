@@ -175,254 +175,285 @@
 //}
 
 #include "pch.h"
-
+#include <vector>
 using namespace DirectX;
-
+int _global =450;
 
 XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
 XMVECTOR cameraTarget = XMVectorZero();
 XMVECTOR cameraUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-float cameraMoveSpeed = 0.05f; 
+float cameraMoveSpeed = 0.05f;
+
+//List des vectors
+std::vector<ResourceCreationResult<GCGeometry*>> _geoList;
+std::vector<ResourceCreationResult<GCMesh*>> _meshList;
+std::vector<XMMATRIX> _worldMatrixList;
+std::vector<XMFLOAT4X4> _worldObjectList;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
-    // Initialisation des ressources graphiques
-    GCGraphicsLogger& profiler = GCGraphicsLogger::GetInstance();
-    profiler.InitializeConsole();
+	// Initialisation des ressources graphiques
+	GCGraphicsLogger& profiler = GCGraphicsLogger::GetInstance();
+	profiler.InitializeConsole();
 
-    Window* window = new Window(hInstance);
-    window->Initialize();
+	Window* window = new Window(hInstance);
+	window->Initialize();
 
-    GCGraphics* graphics = new GCGraphics();
-    graphics->Initialize(window, 1920, 1080);
+	GCGraphics* graphics = new GCGraphics();
+	graphics->Initialize(window, 1920, 1080);
 
-    int flagsLightColor = 0;
-    SET_FLAG(flagsLightColor, HAS_POSITION);
-    SET_FLAG(flagsLightColor, HAS_COLOR);
-    SET_FLAG(flagsLightColor, HAS_NORMAL);
+	int flagsLightColor = 0;
+	SET_FLAG(flagsLightColor, HAS_POSITION);
+	SET_FLAG(flagsLightColor, HAS_COLOR);
+	SET_FLAG(flagsLightColor, HAS_NORMAL);
 
-    int flagsLightTexture = 0;
-    SET_FLAG(flagsLightTexture, HAS_POSITION);
-    SET_FLAG(flagsLightTexture, HAS_UV);
-    SET_FLAG(flagsLightTexture, HAS_NORMAL);
-    //set une couleur pour toutes les formes des objets de base avant de faire un mesh et un material
-    auto geometryPostProcessing = graphics->CreateGeometryPrimitive(Quad, DirectX::XMFLOAT4(DirectX::Colors::Yellow));
-    auto geoCubeOuter = graphics->CreateGeometryPrimitive(CubeSkybox, XMFLOAT4(Colors::Red));
-    auto geoCubeInner = graphics->CreateGeometryPrimitive(Cube, XMFLOAT4(Colors::Green));
-    auto geoSphere = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Yellow));
+	int flagsLightTexture = 0;
+	SET_FLAG(flagsLightTexture, HAS_POSITION);
+	SET_FLAG(flagsLightTexture, HAS_UV);
+	SET_FLAG(flagsLightTexture, HAS_NORMAL);
+	//set une couleur pour toutes les formes des objets de base avant de faire un mesh et un material
+	auto geometryPostProcessing = graphics->CreateGeometryPrimitive(Quad, DirectX::XMFLOAT4(DirectX::Colors::Yellow));
+	auto geoCubeOuter = graphics->CreateGeometryPrimitive(CubeSkybox, XMFLOAT4(Colors::Red));
+	auto geoCubeInner = graphics->CreateGeometryPrimitive(Cube, XMFLOAT4(Colors::Green));
+	auto geoSphere = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Yellow));
 
-    //Test creation de geometry
-    auto _geoSphere = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Orange));
+	//Test creation de geometry
+	for (int i = 0; i < _global; i++)
+	{
+		auto geo = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Orange));
+		_geoList.push_back(geo);
+	}
 
-    std::string shaderFilePath1 = "../../../src/Render/Shaders/LightColor.hlsl";
-    std::string csoDestinationPath1 = "../../../src/Render/CsoCompiled/LightColor";
-    auto shaderLightColor = graphics->CreateShaderCustom(shaderFilePath1, csoDestinationPath1, flagsLightColor, D3D12_CULL_MODE_BACK);
+	std::string shaderFilePath1 = "../../../src/Render/Shaders/LightColor.hlsl";
+	std::string csoDestinationPath1 = "../../../src/Render/CsoCompiled/LightColor";
+	auto shaderLightColor = graphics->CreateShaderCustom(shaderFilePath1, csoDestinationPath1, flagsLightColor, D3D12_CULL_MODE_BACK);
 
-    std::string shaderFilePath2 = "../../../src/Render/Shaders/LightTextureBloom.hlsl";
-    std::string csoDestinationPath2 = "../../../src/Render/CsoCompiled/LightTextureBloom";
-    auto shaderLightTexture = graphics->CreateShaderCustom(shaderFilePath2, csoDestinationPath2, flagsLightTexture, D3D12_CULL_MODE_BACK);
+	std::string shaderFilePath2 = "../../../src/Render/Shaders/LightTextureBloom.hlsl";
+	std::string csoDestinationPath2 = "../../../src/Render/CsoCompiled/LightTextureBloom";
+	auto shaderLightTexture = graphics->CreateShaderCustom(shaderFilePath2, csoDestinationPath2, flagsLightTexture, D3D12_CULL_MODE_BACK);
 
-    auto shaderLightSkyBox = graphics->CreateShaderCustom(shaderFilePath1, csoDestinationPath1, flagsLightColor, D3D12_CULL_MODE_NONE);
+	auto shaderLightSkyBox = graphics->CreateShaderCustom(shaderFilePath1, csoDestinationPath1, flagsLightColor, D3D12_CULL_MODE_NONE);
 
-    graphics->InitializeGraphicsResourcesStart();
+	graphics->InitializeGraphicsResourcesStart();
 
-    int flags = 0;
-    SET_FLAG(flags, HAS_POSITION);
-    SET_FLAG(flags, HAS_UV);
-
-
-    auto meshPostProcessing = graphics->CreateMeshCustom(geometryPostProcessing.resource, flags);
-    // Creation des meshes
-    auto meshCubeOuter = graphics->CreateMeshCustom(geoCubeOuter.resource, flagsLightTexture); // on dit au mesh si on veut lui mettre une texture ou une couleur
-    auto meshCubeInner = graphics->CreateMeshCustom(geoCubeInner.resource, flagsLightColor);
-    auto meshSphere = graphics->CreateMeshCustom(geoSphere.resource, flagsLightTexture);
-
-    //Test creation d'un mesh custom
-    auto _meshSphere = graphics->CreateMeshCustom(_geoSphere.resource, flagsLightColor);
-
-    std::string texturePath = "../../../src/Render/Textures/texture.dds";
-    std::string texturePath2 = "../../../src/Render/Textures/cottage_diffuse.dds";
-    auto texture = graphics->CreateTexture(texturePath);
-    auto texture2 = graphics->CreateTexture(texturePath2);
-
-    graphics->InitializeGraphicsResourcesEnd();
-
-    auto materialCubeOuter = graphics->CreateMaterial(shaderLightTexture.resource); // creer un material speciale avec le parametre associe dans l'exemple ici c'est une texture
-    materialCubeOuter.resource->SetTexture(texture2.resource); // on set la texture si on veut afficher une texture
-
-    auto materialCubeInner = graphics->CreateMaterial(shaderLightColor.resource);
-    auto materialSphere = graphics->CreateMaterial(shaderLightTexture.resource);
-    materialSphere.resource->SetTexture(texture.resource);
-
-    //Test creation de material
-    auto _materialSphere = graphics->CreateMaterial(shaderLightColor.resource);
+	int flags = 0;
+	SET_FLAG(flags, HAS_POSITION);
+	SET_FLAG(flags, HAS_UV);
 
 
-    XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(0.25f * XM_PI, window->AspectRatio(), 1.0f, 1000.0f);
-    XMMATRIX viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
-    XMMATRIX transposedProjectionMatrix = XMMatrixTranspose(projectionMatrix);
-    XMMATRIX transposedViewMatrix = XMMatrixTranspose(viewMatrix);
-    XMFLOAT4X4 storedProjectionMatrix;
-    XMFLOAT4X4 storedViewMatrix;
-    XMStoreFloat4x4(&storedProjectionMatrix, transposedProjectionMatrix);
-    XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
+	auto meshPostProcessing = graphics->CreateMeshCustom(geometryPostProcessing.resource, flags);
+	// Creation des meshes
+	auto meshCubeOuter = graphics->CreateMeshCustom(geoCubeOuter.resource, flagsLightTexture); // on dit au mesh si on veut lui mettre une texture ou une couleur
+	auto meshCubeInner = graphics->CreateMeshCustom(geoCubeInner.resource, flagsLightColor);
+	auto meshSphere = graphics->CreateMeshCustom(geoSphere.resource, flagsLightTexture);
 
-    XMMATRIX worldMatrixCubeOuter = XMMatrixScaling(20.0f, 20.0f, 20.0f) * XMMatrixTranslation(0.0f, -3.0f, 0.0f); // Cube externe (skybox)
-    XMMATRIX worldMatrixCubeInner = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, -4.0f, 3.0f); // Cube interne centr�
-    XMMATRIX worldMatrixCubeInner2 = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-6.0f, 5.0f, -2.0f); // Cube interne centr�
-    XMMATRIX worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(3.0f, 5.0f, -2.0f); // Sph�re d�plac�e dans le cube interne
-
-    XMMATRIX _worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(10.0f, 5.0f, -2.0f);// deplacement de la sphere de test
-
-    XMFLOAT4X4 worldCubeOuter;
-    XMFLOAT4X4 worldCubeInner;
-    XMFLOAT4X4 worldCubeInner2;
-    XMFLOAT4X4 worldSphere;
-
-    XMFLOAT4X4 _worldSphere;// t'as compris
-
-    XMStoreFloat4x4(&worldCubeOuter, XMMatrixTranspose(worldMatrixCubeOuter));
-    XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInner));
-    XMStoreFloat4x4(&worldCubeInner2, XMMatrixTranspose(worldMatrixCubeInner2));
-    XMStoreFloat4x4(&worldSphere, XMMatrixTranspose(worldMatrixSphere));
-
-    XMStoreFloat4x4(&_worldSphere, XMMatrixTranspose(_worldMatrixSphere));
-
-    auto startTime = std::chrono::steady_clock::now();
-
-    while (true) {
-        auto currentTime = std::chrono::steady_clock::now();
-        float elapsedTime = std::chrono::duration<float>(currentTime - startTime).count();
+	//Test creation d'un mesh custom
+	for (int i = 0; i < _global; i++)
+	{
+		auto mesh = graphics->CreateMeshCustom(_geoList[i].resource, flagsLightTexture);
+		_meshList.push_back(mesh);
+	}
 
 
-        float rotationSpeed = 1.0f; 
-        float angle = rotationSpeed * elapsedTime;
-        XMMATRIX rotationMatrix = XMMatrixRotationY(angle);
+	std::string texturePath = "../../../src/Render/Textures/texture.dds";
+	std::string texturePath2 = "../../../src/Render/Textures/cottage_diffuse.dds";
+	auto texture = graphics->CreateTexture(texturePath);
+	auto texture2 = graphics->CreateTexture(texturePath2);
+
+	graphics->InitializeGraphicsResourcesEnd();
+
+	auto materialCubeOuter = graphics->CreateMaterial(shaderLightTexture.resource); // creer un material speciale avec le parametre associe dans l'exemple ici c'est une texture
+	materialCubeOuter.resource->SetTexture(texture2.resource); // on set la texture si on veut afficher une texture
+
+	auto materialCubeInner = graphics->CreateMaterial(shaderLightColor.resource);
+	auto materialSphere = graphics->CreateMaterial(shaderLightTexture.resource);
+	materialSphere.resource->SetTexture(texture.resource);
+
+	//Test creation de material
+	auto _materialSphere = graphics->CreateMaterial(shaderLightTexture.resource);
+	_materialSphere.resource->SetTexture(texture.resource);
+
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(0.25f * XM_PI, window->AspectRatio(), 1.0f, 1000.0f);
+	XMMATRIX viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
+	XMMATRIX transposedProjectionMatrix = XMMatrixTranspose(projectionMatrix);
+	XMMATRIX transposedViewMatrix = XMMatrixTranspose(viewMatrix);
+	XMFLOAT4X4 storedProjectionMatrix;
+	XMFLOAT4X4 storedViewMatrix;
+	XMStoreFloat4x4(&storedProjectionMatrix, transposedProjectionMatrix);
+	XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
+
+	XMMATRIX worldMatrixCubeOuter = XMMatrixScaling(20.0f, 20.0f, 20.0f) * XMMatrixTranslation(0.0f, -3.0f, 0.0f); // Cube externe (skybox)
+	XMMATRIX worldMatrixCubeInner = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, -4.0f, 3.0f); // Cube interne centr�
+	XMMATRIX worldMatrixCubeInner2 = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(-6.0f, 5.0f, -2.0f); // Cube interne centr�
+	XMMATRIX worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(3.0f, 5.0f, -2.0f); // Sph�re d�plac�e dans le cube interne
+
+	//Test deplacmeent de la sphere
+	for (int i = 0; i < _global; i++)
+	{
+		XMMATRIX _worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(5.0f + i, 5.0f, -2.0f);// deplacement de la sphere de test
+		_worldMatrixList.push_back(_worldMatrixSphere);
+	}
+
+	XMFLOAT4X4 worldCubeOuter;
+	XMFLOAT4X4 worldCubeInner;
+	XMFLOAT4X4 worldCubeInner2;
+	XMFLOAT4X4 worldSphere;
+
+	for (int i = 0; i < _global; i++)
+	{
+		XMFLOAT4X4 _worldSphere;// t'as compris 
+		_worldObjectList.push_back(_worldSphere);//t'as compris
+	}
+
+	XMStoreFloat4x4(&worldCubeOuter, XMMatrixTranspose(worldMatrixCubeOuter));
+	XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInner));
+	XMStoreFloat4x4(&worldCubeInner2, XMMatrixTranspose(worldMatrixCubeInner2));
+	XMStoreFloat4x4(&worldSphere, XMMatrixTranspose(worldMatrixSphere));
+
+	//Test de stockage des matrices
+	for (int i = 0; i < _global; i++)
+	{
+		XMStoreFloat4x4(&_worldObjectList[i], XMMatrixTranspose(_worldMatrixList[i]));
+	}
 
 
-        XMMATRIX worldMatrixCubeInnerUpdated = rotationMatrix * worldMatrixCubeInner;
+	auto startTime = std::chrono::steady_clock::now();
+
+	while (true) {
+		auto currentTime = std::chrono::steady_clock::now();
+		float elapsedTime = std::chrono::duration<float>(currentTime - startTime).count();
 
 
-        XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInnerUpdated));
-
-        // Gestion des entr�es utilisateur pour le d�placement de la cam�ra
-        if (window->IsKeyDown('Z')) {
-            cameraPosition += cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
-        }
-        if (window->IsKeyDown('S')) {
-            cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
-        }
-
-        viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
-        transposedViewMatrix = XMMatrixTranspose(viewMatrix);
-        XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
-
-        GCMATERIALPROPERTIES materialProperties;
-        materialProperties.ambientLightColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-        materialProperties.ambient = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-        materialProperties.diffuse = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-        materialProperties.specular = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-        materialProperties.shininess = 1.0f;
-
-        graphics->UpdateMaterialProperties(materialCubeOuter.resource, materialProperties);
-
-        GCLIGHTSPROPERTIES lightData = {};
-
-        GCLIGHT directionalLight;
-        directionalLight.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); 
-        directionalLight.direction = DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f);
-        directionalLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); 
-        directionalLight.spotAngle = 0.0f; 
-        directionalLight.lightIntensity = 1.3f;
-        directionalLight.lightType = 0; 
-
-        GCLIGHT pointLight;
-        pointLight.position = DirectX::XMFLOAT3(0.0f, 4.0f, 0.0f); // Position en 2D (x, y, 0)
-        pointLight.direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-        pointLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
-        pointLight.spotAngle = 0.0f; // Angle du spot si applicable
-        pointLight.lightIntensity = 20.4f;
-        pointLight.lightType = 2; // Type de lumière ponctuelle
+		float rotationSpeed = 1.0f;
+		float angle = rotationSpeed * elapsedTime;
+		XMMATRIX rotationMatrix = XMMatrixRotationY(angle);
 
 
-        lightData.lights[1] = pointLight;
-
-        lightData.lights[0] = directionalLight;
-
-        graphics->UpdateLights(lightData);
+		XMMATRIX worldMatrixCubeInnerUpdated = rotationMatrix * worldMatrixCubeInner;
 
 
-        graphics->StartFrame();
-        graphics->UpdateViewProjConstantBuffer(storedProjectionMatrix, storedViewMatrix);
+		XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInnerUpdated));
 
-        graphics->UpdateWorldConstantBuffer(materialCubeOuter.resource, worldCubeOuter, 1.0f);
-        graphics->GetRender()->DrawObject(meshCubeOuter.resource, materialCubeOuter.resource);
+		// Gestion des entr�es utilisateur pour le d�placement de la cam�ra
+		if (window->IsKeyDown('Z')) {
+			cameraPosition += cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
+		}
+		if (window->IsKeyDown('S')) {
+			cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
+		}
 
-        graphics->UpdateWorldConstantBuffer(materialCubeInner.resource, worldCubeInner, 2.0f);
-        graphics->GetRender()->DrawObject(meshCubeInner.resource, materialCubeInner.resource);
+		viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
+		transposedViewMatrix = XMMatrixTranspose(viewMatrix);
+		XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
 
-        graphics->UpdateWorldConstantBuffer(materialSphere.resource, worldSphere, 3.0f);
-        graphics->GetRender()->DrawObject(meshSphere.resource, materialSphere.resource);
+		GCMATERIALPROPERTIES materialProperties;
+		materialProperties.ambientLightColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		materialProperties.ambient = DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+		materialProperties.diffuse = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		materialProperties.specular = DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+		materialProperties.shininess = 1.0f;
 
-        graphics->UpdateWorldConstantBuffer(materialSphere.resource, worldCubeInner2, 4.0f);
-        graphics->GetRender()->DrawObject(meshSphere.resource, materialSphere.resource);
+		graphics->UpdateMaterialProperties(materialCubeOuter.resource, materialProperties);
 
-        //Test de render mon objet
-        graphics->UpdateWorldConstantBuffer(_materialSphere.resource, _worldSphere, 5.0f);
-        graphics->GetRender()->DrawObject(_meshSphere.resource, _materialSphere.resource);
+		GCLIGHTSPROPERTIES lightData = {};
 
-        graphics->EndFrame();
-        window->Run(graphics->GetRender());
-    }
+		GCLIGHT directionalLight;
+		directionalLight.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		directionalLight.direction = DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f);
+		directionalLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		directionalLight.spotAngle = 0.0f;
+		directionalLight.lightIntensity = 1.3f;
+		directionalLight.lightType = 0;
 
-    return 0;
+		GCLIGHT pointLight;
+		pointLight.position = DirectX::XMFLOAT3(0.0f, 4.0f, 0.0f); // Position en 2D (x, y, 0)
+		pointLight.direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		pointLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
+		pointLight.spotAngle = 0.0f; // Angle du spot si applicable
+		pointLight.lightIntensity = 20.4f;
+		pointLight.lightType = 2; // Type de lumière ponctuelle
+
+
+		lightData.lights[1] = pointLight;
+
+		lightData.lights[0] = directionalLight;
+
+		graphics->UpdateLights(lightData);
+
+
+		graphics->StartFrame();
+		graphics->UpdateViewProjConstantBuffer(storedProjectionMatrix, storedViewMatrix);
+
+		graphics->UpdateWorldConstantBuffer(materialCubeOuter.resource, worldCubeOuter, 1.0f);
+		graphics->GetRender()->DrawObject(meshCubeOuter.resource, materialCubeOuter.resource);
+
+		graphics->UpdateWorldConstantBuffer(materialCubeInner.resource, worldCubeInner, 2.0f);
+		graphics->GetRender()->DrawObject(meshCubeInner.resource, materialCubeInner.resource);
+
+		graphics->UpdateWorldConstantBuffer(materialSphere.resource, worldSphere, 3.0f);
+		graphics->GetRender()->DrawObject(meshSphere.resource, materialSphere.resource);
+
+		graphics->UpdateWorldConstantBuffer(materialSphere.resource, worldCubeInner2, 4.0f);
+		graphics->GetRender()->DrawObject(meshSphere.resource, materialSphere.resource);
+
+		//Test de render mon objet
+		for (int i = 0; i < _global; i++)
+		{
+			graphics->UpdateWorldConstantBuffer(_materialSphere.resource, _worldObjectList[i], 5.0f);
+			graphics->GetRender()->DrawObject(_meshList[i].resource, _materialSphere.resource);
+		}
+
+		graphics->EndFrame();
+		window->Run(graphics->GetRender());
+	}
+
+	return 0;
 }
+//GCLIGHT directionalLight;
+//directionalLight.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); // Pas de position pour une lumière directionnelle
+//directionalLight.direction = DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f); // Direction du soleil (exemple)
+//directionalLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
+//directionalLight.spotAngle = 0.0f; // Pas d'angle pour une lumière directionnelle
+//directionalLight.lightIntensity = 1.3f;
+//directionalLight.lightType = 0; // Type de lumière directionnelle
 
-    //GCLIGHT directionalLight;
-    //directionalLight.position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); // Pas de position pour une lumière directionnelle
-    //directionalLight.direction = DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f); // Direction du soleil (exemple)
-    //directionalLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
-    //directionalLight.spotAngle = 0.0f; // Pas d'angle pour une lumière directionnelle
-    //directionalLight.lightIntensity = 1.3f;
-    //directionalLight.lightType = 0; // Type de lumière directionnelle
+//GCLIGHT light1;
+//light1.position = DirectX::XMFLOAT3(-5.0f, 20.0f, -2.0f);
+//light1.direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+//light1.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+//light1.spotAngle = 10.0f;
+//light1.lightIntensity = 1.2f;
+//light1.lightType = 1;
 
-    //GCLIGHT light1;
-    //light1.position = DirectX::XMFLOAT3(-5.0f, 20.0f, -2.0f);
-    //light1.direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
-    //light1.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-    //light1.spotAngle = 10.0f;
-    //light1.lightIntensity = 1.2f;
-    //light1.lightType = 1;
+//GCLIGHT light2;
+//light2.position = DirectX::XMFLOAT3(2.0f, 20.0f, -2.0f);
+//light2.direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
+//light2.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+//light2.spotAngle = 10.0f;
+//light2.lightIntensity = 1.2f;
+//light2.lightType = 1;
 
-    //GCLIGHT light2;
-    //light2.position = DirectX::XMFLOAT3(2.0f, 20.0f, -2.0f);
-    //light2.direction = DirectX::XMFLOAT3(0.0f, -1.0f, 0.0f);
-    //light2.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-    //light2.spotAngle = 10.0f;
-    //light2.lightIntensity = 1.2f;
-    //light2.lightType = 1;
+//// Lumière ponctuelle 2
+////GCLIGHT light2;
+////light2.position = DirectX::XMFLOAT3(-5.0f, 0.0f, 0.0f); // Position en 2D (x, y, 0)
+////light2.direction = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f); // Direction vers le bas en 2D
+////light2.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
+////light2.spotAngle = 10.0f; // Angle du spot si applicable
+////light2.lightIntensity = 5.2f;
+////light2.lightType = 1; // Type de lumière ponctuelle
 
-    //// Lumière ponctuelle 2
-    ////GCLIGHT light2;
-    ////light2.position = DirectX::XMFLOAT3(-5.0f, 0.0f, 0.0f); // Position en 2D (x, y, 0)
-    ////light2.direction = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f); // Direction vers le bas en 2D
-    ////light2.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
-    ////light2.spotAngle = 10.0f; // Angle du spot si applicable
-    ////light2.lightIntensity = 5.2f;
-    ////light2.lightType = 1; // Type de lumière ponctuelle
-
-    ////GCLIGHT pointLight;
-    ////pointLight.position = DirectX::XMFLOAT3(6.0f, 1.0f, 0.0f); // Position en 2D (x, y, 0)
-    ////pointLight.direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); // Direction vers le bas en 2D
-    ////pointLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
-    ////pointLight.spotAngle = 0.0f; // Angle du spot si applicable
-    ////pointLight.lightIntensity = 2.4f;
-    ////pointLight.lightType = 2; // Type de lumière ponctuelle
+////GCLIGHT pointLight;
+////pointLight.position = DirectX::XMFLOAT3(6.0f, 1.0f, 0.0f); // Position en 2D (x, y, 0)
+////pointLight.direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f); // Direction vers le bas en 2D
+////pointLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
+////pointLight.spotAngle = 0.0f; // Angle du spot si applicable
+////pointLight.lightIntensity = 2.4f;
+////pointLight.lightType = 2; // Type de lumière ponctuelle
 
 
-    //lightData.lights[0] = directionalLight;
-    //lightData.lights[1] = light2;
-    //lightData.lights[2] = light1;
-    ////lightData.lights[0] = pointLight;
+//lightData.lights[0] = directionalLight;
+//lightData.lights[1] = light2;
+//lightData.lights[2] = light1;
+////lightData.lights[0] = pointLight;
 
-    //GCGraphicsLogger& profiler = GCGraphicsLogger::GetInstance();
+//GCGraphicsLogger& profiler = GCGraphicsLogger::GetInstance();
