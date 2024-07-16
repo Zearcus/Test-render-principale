@@ -177,7 +177,7 @@
 #include "pch.h"
 #include <vector>
 using namespace DirectX;
-int _global =450;
+int _global = 250;
 
 XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
 XMVECTOR cameraTarget = XMVectorZero();
@@ -192,6 +192,7 @@ std::vector<XMMATRIX> _worldMatrixList;
 std::vector<XMFLOAT4X4> _worldObjectList;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
+
 	// Initialisation des ressources graphiques
 	GCGraphicsLogger& profiler = GCGraphicsLogger::GetInstance();
 	profiler.InitializeConsole();
@@ -290,7 +291,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	//Test deplacmeent de la sphere
 	for (int i = 0; i < _global; i++)
 	{
-		XMMATRIX _worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(5.0f + i, 5.0f, -2.0f);// deplacement de la sphere de test
+
+		XMMATRIX _worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation((float)(rand() % 50) + 1, (float)(rand() % 50) + 1, (float)(rand() % 50) + 1);// deplacement de la sphere de test
 		_worldMatrixList.push_back(_worldMatrixSphere);
 	}
 
@@ -318,7 +320,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 
 	auto startTime = std::chrono::steady_clock::now();
+	// Initialisation du timer
+	LARGE_INTEGER frequency, start, end;
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&start);
 
+	int numFrames = 0;
 	while (true) {
 		auto currentTime = std::chrono::steady_clock::now();
 		float elapsedTime = std::chrono::duration<float>(currentTime - startTime).count();
@@ -326,13 +333,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 		float rotationSpeed = 1.0f;
 		float angle = rotationSpeed * elapsedTime;
-		XMMATRIX rotationMatrix = XMMatrixRotationY(angle);
+		XMMATRIX rotationMatrix = XMMatrixRotationZ(angle);
 
 
 		XMMATRIX worldMatrixCubeInnerUpdated = rotationMatrix * worldMatrixCubeInner;
 
 
 		XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInnerUpdated));
+
+		for (int i = 0; i < _global; i++)
+		{
+			XMMATRIX worldMatrixSphereUpdated = rotationMatrix * _worldMatrixList[i];
+			XMStoreFloat4x4(&_worldObjectList[i], XMMatrixTranspose(worldMatrixSphereUpdated));
+		}
 
 		// Gestion des entr�es utilisateur pour le d�placement de la cam�ra
 		if (window->IsKeyDown('Z')) {
@@ -341,7 +354,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		if (window->IsKeyDown('S')) {
 			cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
 		}
-
+		if (window->IsKeyDown(VK_ESCAPE)) {
+			return false;
+		}
 		viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
 		transposedViewMatrix = XMMatrixTranspose(viewMatrix);
 		XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
@@ -405,6 +420,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 		graphics->EndFrame();
 		window->Run(graphics->GetRender());
+		// Fin du rendu
+		QueryPerformanceCounter(&end);
+		double frameTime = static_cast<double>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+		double fps = 1.0 / frameTime;
+
+		//std::cout << "FPS : " << fps << std::endl;
+
+		// Réinitialisation du timer
+		QueryPerformanceCounter(&start);
+		numFrames++;
 	}
 
 	return 0;
