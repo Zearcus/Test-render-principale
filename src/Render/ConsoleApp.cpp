@@ -179,7 +179,7 @@
 using namespace DirectX;
 int _global = 250;
 
-XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
+XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, -41.0f);
 XMVECTOR cameraTarget = XMVectorZero();
 XMVECTOR cameraUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -251,7 +251,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	//Test creation d'un mesh custom
 	for (int i = 0; i < _global; i++)
 	{
-		auto mesh = graphics->CreateMeshCustom(_geoList[i].resource, flagsLightTexture);
+		auto mesh = graphics->CreateMeshCustom(_geoList[i].resource, flagsLightColor);
 		_meshList.push_back(mesh);
 	}
 
@@ -271,8 +271,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	materialSphere.resource->SetTexture(texture.resource);
 
 	//Test creation de material
-	auto _materialSphere = graphics->CreateMaterial(shaderLightTexture.resource);
-	_materialSphere.resource->SetTexture(texture.resource);
+	auto _materialSphere = graphics->CreateMaterial(shaderLightColor.resource);
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(0.25f * XM_PI, window->AspectRatio(), 1.0f, 1000.0f);
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
