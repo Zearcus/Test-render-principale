@@ -179,7 +179,7 @@
 using namespace DirectX;
 int _global = 250;
 
-XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, -41.0f);
+XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
 XMVECTOR cameraTarget = XMVectorZero();
 XMVECTOR cameraUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
