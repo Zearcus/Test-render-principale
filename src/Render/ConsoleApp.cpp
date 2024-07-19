@@ -211,7 +211,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
     auto geometryPostProcessing = graphics->CreateGeometryPrimitive(Quad, DirectX::XMFLOAT4(DirectX::Colors::Yellow));
     auto geoCubeOuter = graphics->CreateGeometryPrimitive(CubeSkybox, XMFLOAT4(Colors::Red));
-    auto geoCubeInner = graphics->CreateGeometryPrimitive(Cube, XMFLOAT4(Colors::Green));
+    auto geoCubeInner = graphics->CreateGeometryPrimitive(Quad, XMFLOAT4(Colors::Green));
     auto geoSphere = graphics->CreateGeometryPrimitive(Cube, XMFLOAT4(Colors::Yellow));
 
     std::string shaderFilePath1 = "../../../src/Render/Shaders/LightColor.hlsl";
@@ -295,16 +295,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
         XMStoreFloat4x4(&worldCubeInner, worldMatrixCubeInnerUpdated);
 
         // Gestion des entr�es utilisateur pour le d�placement de la cam�ra
-        //if (window->IsKeyDown('Z')) {
-        //    cameraPosition += cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
-        //}
-        //if (window->IsKeyDown('S')) {
-        //    cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
-        //}
+        if (window->IsKeyDown('Z')) {
+            cameraPosition += cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
+        }
+        if (window->IsKeyDown('S')) {
+            cameraPosition -= cameraMoveSpeed * XMVector3Normalize(XMVectorSubtract(cameraTarget, cameraPosition));
+        }
 
-        //viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
-        //transposedViewMatrix = XMMatrixTranspose(viewMatrix);
-        //XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
+        viewMatrix = XMMatrixLookAtLH(cameraPosition, cameraTarget, cameraUp);
+        transposedViewMatrix = XMMatrixTranspose(viewMatrix);
+        XMStoreFloat4x4(&storedViewMatrix, transposedViewMatrix);
 
         GCMATERIALPROPERTIES materialProperties;
         materialProperties.ambientLightColor = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
