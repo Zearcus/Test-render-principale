@@ -60,7 +60,11 @@ enum GC_PRIMITIVE_ID;
 
 // Add William 
 class GCGraphicsLogger;
+enum GC_GRAPHICS_ERROR;
+
+struct GC_DESCRIPTOR_RESOURCE;
 //
+
 
 
 class GCGraphics;
@@ -69,7 +73,8 @@ class GCMesh;
 class GCModelParser;
 class GCModelParserObj;
 class GCPrimitiveFactory;
-class GCRender;
+class GCRenderContext;
+class GCRenderResources;
 class GCShader;
 class GCTexture;
 class GCTextureFactory;
@@ -96,8 +101,8 @@ class Window;
 #include "Window.h"
 #include "Macros.h"
 #include "GCUploadBuffer.h"
-#include "GCRender.h"
-#include "Vectors.h"
+#include "GCRenderContext.h"
+#include "GCRenderResources.h"
 #include "GCGeometry.h"
 #include "GCMesh.h"
 #include "GCShader.h"
