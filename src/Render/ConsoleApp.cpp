@@ -178,6 +178,7 @@
 #include <vector>
 using namespace DirectX;
 int _global = 250;
+//int test = 100;
 
 XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
 XMVECTOR cameraTarget = XMVectorZero();
