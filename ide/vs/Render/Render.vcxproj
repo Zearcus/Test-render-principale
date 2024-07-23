@@ -101,6 +101,7 @@
     <ClInclude Include="..\..\..\src\Render\GCUtils.h" />
     <ClInclude Include="..\..\..\src\Render\Macros.h" />
     <ClInclude Include="..\..\..\src\Render\MathHelper.h" />
+    <ClInclude Include="..\..\..\src\Render\pch.h" />
     <ClInclude Include="..\..\..\src\Render\Resource.h" />
     <ClInclude Include="..\..\..\src\Render\Timer.h" />
     <ClInclude Include="..\..\..\src\Render\Vectors.h" />
@@ -143,6 +144,10 @@
     <ClCompile Include="..\..\..\src\Render\GCUtils.cpp" />
     <ClCompile Include="..\..\..\src\Render\Macros.cpp" />
     <ClCompile Include="..\..\..\src\Render\MathHelper.cpp" />
+    <ClCompile Include="..\..\..\src\Render\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\Render\Timer.cpp" />
     <ClCompile Include="..\..\..\src\Render\Vectors.cpp" />
     <ClCompile Include="..\..\..\src\Render\Window.cpp" />

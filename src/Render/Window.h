@@ -43,8 +43,8 @@ private:
     static Window* mApp;
     bool      m4xMsaaState = false;    // 4X MSAA enabled
     UINT      m4xMsaaQuality = 0;      // quality level of 4X MSAA
-    int m_ClientWidth = 1660;
-    int m_ClientHeight = 800;
+    int m_ClientWidth = 1920;
+    int m_ClientHeight = 1080;
     HWND      m_hMainWnd = nullptr; // main window handle
     HINSTANCE mhAppInst = nullptr; // application instance handle
     bool      mAppPaused = false;  // is the application paused?

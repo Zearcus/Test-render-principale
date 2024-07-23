@@ -178,7 +178,6 @@
 #include <vector>
 using namespace DirectX;
 int _global = 250;
-int _delete = -1;
 
 XMVECTOR cameraPosition = XMVectorSet(0.0f, -10.0f, 5.0f, 1.0f);
 XMVECTOR cameraTarget = XMVectorZero();
@@ -191,7 +190,6 @@ std::vector<ResourceCreationResult<GCGeometry*>> _geoList;
 std::vector<ResourceCreationResult<GCMesh*>> _meshList;
 std::vector<XMMATRIX> _worldMatrixList;
 std::vector<XMFLOAT4X4> _worldObjectList;
-std::vector<GCLIGHT> _pointLightList;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd) {
 
@@ -221,15 +219,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	auto geoSphere = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Yellow));
 
 	//Test creation de geometry
-	for (int i = 0; i < _delete; i++)
+	for (int i = 0; i < _global; i++)
 	{
 		auto geo = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Orange));
-		_geoList.push_back(geo);
-	}
-
-	for (int i = 0; i < _delete; i++)
-	{
-		auto geo = graphics->CreateGeometryPrimitive(Sphere, XMFLOAT4(Colors::Blue));
 		_geoList.push_back(geo);
 	}
 
@@ -257,7 +249,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	auto meshSphere = graphics->CreateMeshCustom(geoSphere.resource, flagsLightTexture);
 
 	//Test creation d'un mesh custom
-	for (int i = 0; i < _delete; i++)
+	for (int i = 0; i < _global; i++)
 	{
 		auto mesh = graphics->CreateMeshCustom(_geoList[i].resource, flagsLightTexture);
 		_meshList.push_back(mesh);
@@ -297,7 +289,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	XMMATRIX worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(3.0f, 5.0f, -2.0f); // Sph�re d�plac�e dans le cube interne
 
 	//Test deplacmeent de la sphere
-	for (int i = 0; i < _delete; i++)
+	for (int i = 0; i < _global; i++)
 	{
 
 		XMMATRIX _worldMatrixSphere = XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation((float)(rand() % 50) + 1, (float)(rand() % 50) + 1, (float)(rand() % 50) + 1);// deplacement de la sphere de test
@@ -321,7 +313,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 	XMStoreFloat4x4(&worldSphere, XMMatrixTranspose(worldMatrixSphere));
 
 	//Test de stockage des matrices
-	for (int i = 0; i < _delete; i++)
+	for (int i = 0; i < _global; i++)
 	{
 		XMStoreFloat4x4(&_worldObjectList[i], XMMatrixTranspose(_worldMatrixList[i]));
 	}
@@ -349,7 +341,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 
 		XMStoreFloat4x4(&worldCubeInner, XMMatrixTranspose(worldMatrixCubeInnerUpdated));
 
-		for (int i = 0; i < _delete; i++)
+		for (int i = 0; i < _global; i++)
 		{
 			XMMATRIX worldMatrixSphereUpdated = rotationMatrix * _worldMatrixList[i];
 			XMStoreFloat4x4(&_worldObjectList[i], XMMatrixTranspose(worldMatrixSphereUpdated));
@@ -396,32 +388,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		pointLight.lightIntensity = 20.4f;
 		pointLight.lightType = 2; // Type de lumière ponctuelle
 
-		//for (int i = 0; i < _global; i++) //l'a oçi
-		//{
-		//	GCLIGHT _pointLight;
-		//	_pointLight.position = DirectX::XMFLOAT3((float)(rand() % 50) + i, (float)(rand() % 50) + i, (float)(rand() % 50) + i);
-		//	pointLight.direction = DirectX::XMFLOAT3((float)(rand() % 50) + i, (float)(rand() % 50) + i, (float)(rand() % 50) + i);
-		//	pointLight.color = DirectX::XMFLOAT3((float)(rand() % 50) + i, (float)(rand() % 50) + i, (float)(rand() % 50) + i); // Couleur de la lumière
-		//	pointLight.spotAngle = 0.0f; // Angle du spot si applicable
-		//	pointLight.lightIntensity = 20.4f;
-		//	pointLight.lightType = 2; // Type de lumière ponctuelle
-		//	_pointLightList.push_back(_pointLight);
-		//}
 
-		//for(int i = 2; i <  _global; i++)
-		//{
-		//	lightData.lights[i];
-		//}
-
-		GCLIGHT _pointLight;// là j'ai esayé morche po 
-		_pointLight.position = DirectX::XMFLOAT3(0.10f, 10.0f, 0.10f); // Position en 2D (x, y, 0)
-		_pointLight.direction = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-		_pointLight.color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f); // Couleur de la lumière
-		_pointLight.spotAngle = 0.0f; // Angle du spot si applicable
-		_pointLight.lightIntensity = 20.4f;
-		_pointLight.lightType = 2; // Type de lumière ponctuelle
-
-		lightData.lights[2] = _pointLight;
 		lightData.lights[1] = pointLight;
 
 		lightData.lights[0] = directionalLight;
@@ -445,7 +412,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, in
 		graphics->GetRender()->DrawObject(meshSphere.resource, materialSphere.resource);
 
 		//Test de render mon objet
-		for (int i = 0; i < _delete; i++)
+		for (int i = 0; i < _global; i++)
 		{
 			graphics->UpdateWorldConstantBuffer(_materialSphere.resource, _worldObjectList[i], 5.0f);
 			graphics->GetRender()->DrawObject(_meshList[i].resource, _materialSphere.resource);
