@@ -3,8 +3,8 @@
 int main(int argc, char** argv)
 {
 	SpriteSheetGenerator Packer;
-	fs::path importPath = "C:/Users/ssanchez/Documents/GitHub/gce-dev/bin/SpriteSheetGenerator-py/randomImage/";
-	fs::path outputPath = "C:/Users/ssanchez/Documents/GitHub/gce-dev/bin/SpriteSheetGenerator-py/output/";
+	fs::path importPath = "F:/Project/Moteur/Test-render-principale/bin/SpriteSheetGenerator-py/image/";
+	fs::path outputPath = "F:/Project/Moteur/Test-render-principale/bin/SpriteSheetGenerator-py/ouput/";
 	int padding = 1;
 	bool allowRotate = false;
 	bool tryRefillPrevRow = false;
