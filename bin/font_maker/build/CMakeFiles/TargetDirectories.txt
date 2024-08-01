@@ -1,0 +1,5 @@
+C:/Users/aleksi/Documents/font_maker/build/CMakeFiles/freetype.dir
+C:/Users/aleksi/Documents/font_maker/build/CMakeFiles/PACKAGE.dir
+C:/Users/aleksi/Documents/font_maker/build/CMakeFiles/INSTALL.dir
+C:/Users/aleksi/Documents/font_maker/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/aleksi/Documents/font_maker/build/CMakeFiles/ZERO_CHECK.dir
